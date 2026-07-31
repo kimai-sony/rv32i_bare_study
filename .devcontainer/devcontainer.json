@@ -13,7 +13,8 @@
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cpptools",
                 "llvm-vs-code-extensions.vscode-clangd",
-                "ms-vscode.cmake-tools"
+                "ms-vscode.cmake-tools",
+                "anthropic.claude-code"
             ]
         }
     }

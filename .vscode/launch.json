@@ -11,9 +11,9 @@
 
             "postDebugTask": "stop-qemu-gdb",
 
-            "program": "/workspaces/rv32i_bare_study/build/hello",
+            "program": "${workspaceFolder}/build/hello",
 
-            "cwd": "/workspaces/rv32i_bare_study",
+            "cwd": "${workspaceFolder}",
 
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb-multiarch",

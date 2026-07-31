@@ -12,14 +12,40 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "run",
+
+            "detail": "Build and run in QEMU without debugging (Ctrl-A X to quit)",
+
+            "dependsOn": [
+                "build"
+            ],
+
+            "type": "shell",
+
+            "command": "qemu-system-riscv32 -machine virt -bios none -kernel ${workspaceFolder}/build/hello -nographic",
+
+            "problemMatcher": []
         },
         {
             "label": "qemu-gdb",
 
+            "detail": "Build, then start QEMU halted with a GDB server on :1234",
+
+            "dependsOn": [
+                "build"
+            ],
+            "dependsOrder": "sequence",
+
             "type": "shell",
 
-            "command": "pkill -x qemu-system-riscv32 2>/dev/null || true; nohup qemu-system-riscv32 -machine virt -bios none -kernel build/hello -nographic -S -gdb tcp::1234 >/tmp/rv32i_bare_study_qemu.log 2>&1 &",
+            "command": "[ -f ${workspaceFolder}/build/qemu.pid ] && kill $(cat ${workspaceFolder}/build/qemu.pid) 2>/dev/null; sleep 0.2; setsid nohup qemu-system-riscv32 -machine virt -bios none -kernel ${workspaceFolder}/build/hello -nographic -S -gdb tcp::1234 > ${workspaceFolder}/build/qemu.log 2>&1 < /dev/null & echo $! > ${workspaceFolder}/build/qemu.pid; sleep 0.3",
 
             "options": {
                 "shell": {
@@ -30,14 +56,24 @@
                 }
             },
 
+            "presentation": {
+                "reveal": "silent"
+            },
+
             "problemMatcher": []
         },
         {
             "label": "stop-qemu-gdb",
 
+            "detail": "Kill the QEMU instance started by qemu-gdb",
+
             "type": "shell",
 
-            "command": "pkill -x qemu-system-riscv32 2>/dev/null || true",
+            "command": "[ -f ${workspaceFolder}/build/qemu.pid ] && kill $(cat ${workspaceFolder}/build/qemu.pid) 2>/dev/null; rm -f ${workspaceFolder}/build/qemu.pid",
+
+            "presentation": {
+                "reveal": "silent"
+            },
 
             "problemMatcher": []
         }
