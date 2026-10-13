@@ -12,9 +12,12 @@ Starting from an OS-less, library-less state (`-ffreestanding` / `-nostdlib`), i
 ├── linker.ld                  # Linker script targeting the QEMU virt machine's RAM (0x80000000)
 ├── src/
 │   ├── start.S                # Entry point (_start). Sets up the stack, clears .bss, sets mtvec
-│   ├── trap.S / trap.c        # Exception/interrupt handlers
-│   ├── uart.c                 # Output to the QEMU virt machine's UART0 (0x10000000)
+│   ├── trap.S / .c / .h       # Trap entry (register save/restore) and interrupt/exception dispatch
+│   ├── timer.c / timer.h      # Periodic timer interrupt using CLINT mtime/mtimecmp
+│   ├── uart.c / uart.h        # Output to the QEMU virt machine's UART0 (0x10000000)
 │   └── main.c
+├── third_party/
+│   └── riscv-opcodes/         # encoding.h generated from riscv/riscv-opcodes (CSR definitions, BSD-3-Clause)
 └── .vscode/                   # Tasks/launch configuration for build, run, and debug
 ```
 

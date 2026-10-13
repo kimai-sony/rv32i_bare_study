@@ -1,36 +1,56 @@
 #include <stdint.h>
 
-extern void uart_puts(const char*);
+#include "encoding.h"
+#include "timer.h"
+#include "trap.h"
+#include "uart.h"
 
-static void print_hex(uint32_t v)
+static void handle_interrupt(uint32_t code)
 {
-    static const char hex[] = "0123456789ABCDEF";
+    switch (code) {
+    case IRQ_M_TIMER:
+        timer_handler();
+        break;
 
-    for (int i = 7; i >= 0; --i) {
-        char c = hex[(v >> (i * 4)) & 0xF];
-        extern void uart_putc(char);
-        uart_putc(c);
+    default:
+        uart_puts("\r\nUNKNOWN INTERRUPT code=");
+        uart_put_hex(code);
+        uart_puts("\r\n");
+        while (1) {
+        }
     }
 }
 
-void trap_handler(uint32_t mcause,
-                  uint32_t mepc,
-                  uint32_t mtval)
+static void handle_exception(uint32_t code, struct trap_frame* tf)
 {
-    uart_puts("\r\nTRAP\r\n");
+    /* There is no recovery for exceptions yet, so print the details and halt */
+    uart_puts("\r\nEXCEPTION\r\n");
 
     uart_puts("mcause=");
-    print_hex(mcause);
+    uart_put_hex(code);
     uart_puts("\r\n");
 
     uart_puts("mepc=");
-    print_hex(mepc);
+    uart_put_hex(tf->mepc);
     uart_puts("\r\n");
 
     uart_puts("mtval=");
-    print_hex(mtval);
+    uart_put_hex(read_csr(mtval));
     uart_puts("\r\n");
 
     while (1) {
+    }
+}
+
+void trap_handler(struct trap_frame* tf)
+{
+    /* Identify the cause: the MSB of mcause distinguishes interrupts from exceptions */
+    uint32_t mcause = read_csr(mcause);
+    uint32_t code = mcause & MCAUSE_EXCCODE;
+
+    if (mcause & MCAUSE_INT) {
+        handle_interrupt(code);
+    } else {
+        handle_exception(code, tf);
     }
 }
